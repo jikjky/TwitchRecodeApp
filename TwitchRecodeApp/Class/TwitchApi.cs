@@ -231,7 +231,13 @@ namespace TwitchRecodeApp.Class
                             deleteInfos.Add(user);
                         }
                         WriteLog($"{user.LoginId} Process end");
-
+                    }
+                    else
+                    {
+                        if (user.IsNeedDelete)
+                        {
+                            deleteInfos.Add(user);
+                        }
                     }
                 }
 
