@@ -125,10 +125,10 @@ namespace TwitchRecodeApp.Class
                                 {
                                     // Twitch 채널과 저장 경로 설정
                                     string channel = user.LoginId; // 실제 Twitch 채널 이름으로 대체
-                                    string outputPath = $"{path}\\{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}.ts"; // 저장 경로 및 파일 이름으로 대체
+                                    string outputPath = $"{path}{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}.ts"; // 저장 경로 및 파일 이름으로 대체
                                     user.FilePath = outputPath;
                                     // streamlink 명령어 구성
-                                    string streamlinkCmd = $"streamlink {(string.IsNullOrEmpty(proxy) ? "" : $"--http-proxy \"socks5h://{proxy}\"")} --twitch-disable-hosting --twitch-disable-ads twitch.tv/{channel} best -o \"{outputPath}\"";
+                                    string streamlinkCmd = $"streamlink {(string.IsNullOrEmpty(proxy) ? "" : $"--http-proxy \"socks5h://{proxy}\"")} --twitch-disable-hosting --twitch-disable-ads twitch.tv/{channel} best -o \'{outputPath}\'";
                                     WriteLog($"{streamlinkCmd}");
                                     ProcessStartInfo? psi = null;
                                     // ProcessStartInfo 설정
