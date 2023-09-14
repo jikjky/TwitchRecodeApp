@@ -95,7 +95,16 @@ namespace TwitchRecodeApp.Class
         private string IniReadValue(string Section, string Key)
         {
             IniData data = parser.ReadFile(mFile.Name);
-            return data[Section][Key].ToString();
+            string returnValue = "";
+            try
+            {
+                if (data[Section][Key] == null)
+                    returnValue = "";
+                else
+                    returnValue = data[Section][Key].ToString();
+            }
+            catch { }
+            return returnValue;
         }
 
         private FileIniDataParser parser = new ();
@@ -113,6 +122,7 @@ namespace TwitchRecodeApp.Class
             // 위와 같이 Default값을 지정할수 있다.
             if (mFile.Exists == false)
             {
+                mFile.Create().Close();
                 SaveINI();
             }
             else

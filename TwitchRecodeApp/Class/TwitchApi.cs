@@ -17,6 +17,7 @@ namespace TwitchRecodeApp.Class
         public string ClientSecret { get; set; } = "";
         public string RecodingId { get; set; } = "";
         public string Proxy { get; set; } = "";
+        public string Path { get; set; } = "";
 
         public SettingIni(FileInfo fileInfo) : base(fileInfo)
         {
@@ -131,7 +132,7 @@ namespace TwitchRecodeApp.Class
                                 {
                                     // Twitch 채널과 저장 경로 설정
                                     string channel = user.LoginId; // 실제 Twitch 채널 이름으로 대체
-                                    string outputPath = $"D:\\temp\\{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}.ts"; // 저장 경로 및 파일 이름으로 대체
+                                    string outputPath = $"{setting.Path}\\{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}.ts"; // 저장 경로 및 파일 이름으로 대체
                                     user.FilePath = outputPath;
                                     // streamlink 명령어 구성
                                     string streamlinkCmd = $"streamlink {(string.IsNullOrEmpty(setting.Proxy) ? "":$"--http-proxy \"socks5h://{setting.Proxy}\"")} --twitch-disable-hosting --twitch-disable-ads twitch.tv/{channel} best -o \"{outputPath}\"";
