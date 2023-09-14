@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,23 +8,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using TwitchLib.Api;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static TwitchRecodeApp.Class.TwitchApi;
 
 namespace TwitchRecodeApp.Class
 {
-    public class SettingIni : ClassToIni
-    {
-        public string ClientId { get; set; } = "";
-        public string ClientSecret { get; set; } = "";
-        public string RecodingId { get; set; } = "";
-        public string Proxy { get; set; } = "";
-        public string Path { get; set; } = "";
-
-        public SettingIni(FileInfo fileInfo) : base(fileInfo)
-        {
-        }
-    }
-
     public class TwitchApi
     {
         private static async Task<string> GetAccessTokken(string ClientId, string ClientSecret)
@@ -51,7 +40,7 @@ namespace TwitchRecodeApp.Class
         public class UserInfo
         {
             public string LoginId { get; set; } = "";
-            public string FilePath { get; set; } = "";            
+            public string FilePath { get; set; } = "";
             public DateTime StreamTime { get; set; }
             public bool IsStream { get; set; }
             public bool IsRecording { get; set; }
@@ -69,14 +58,18 @@ namespace TwitchRecodeApp.Class
         {
             YoutubeApi youtubeApi = new YoutubeApi(oSPlatform);
             TwitchAPI twitchAPI = new TwitchAPI();
-            SettingIni setting = new SettingIni(new FileInfo("Setting.ini"));
-            twitchAPI.Settings.ClientId = setting.ClientId;
-            twitchAPI.Settings.AccessToken = GetAccessTokken(setting.ClientId, setting.ClientSecret).Result;
-            twitchAPI.Settings.Secret = setting.ClientSecret;
+            IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+            twitchAPI.Settings.ClientId = configuration.GetSection("AppSettings")["ClientId"];
+            twitchAPI.Settings.AccessToken = GetAccessTokken(configuration.GetSection("AppSettings")["ClientId"] ?? "", configuration.GetSection("AppSettings")["ClientSecret"] ?? "").Result;
+            twitchAPI.Settings.Secret = configuration.GetSection("AppSettings")["ClientSecret"];
             while (true)
             {
-                setting.LoadINI();
-                var idList = setting.RecodingId.Split(',').ToList();
+                configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+                var recodingId = configuration.GetSection("AppSettings")["RecodingId"] ?? "";
+                var path = configuration.GetSection("AppSettings")["Path"] ?? "";
+                var proxy = configuration.GetSection("AppSettings")["Proxy"] ?? "";
+                var idList = recodingId.Split(',').ToList();
 
                 idList.RemoveAll(x => string.IsNullOrWhiteSpace(x));
 
@@ -132,10 +125,10 @@ namespace TwitchRecodeApp.Class
                                 {
                                     // Twitch 채널과 저장 경로 설정
                                     string channel = user.LoginId; // 실제 Twitch 채널 이름으로 대체
-                                    string outputPath = $"{setting.Path}\\{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}.ts"; // 저장 경로 및 파일 이름으로 대체
+                                    string outputPath = $"{path}\\{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}.ts"; // 저장 경로 및 파일 이름으로 대체
                                     user.FilePath = outputPath;
                                     // streamlink 명령어 구성
-                                    string streamlinkCmd = $"streamlink {(string.IsNullOrEmpty(setting.Proxy) ? "":$"--http-proxy \"socks5h://{setting.Proxy}\"")} --twitch-disable-hosting --twitch-disable-ads twitch.tv/{channel} best -o \"{outputPath}\"";
+                                    string streamlinkCmd = $"streamlink {(string.IsNullOrEmpty(proxy) ? "" : $"--http-proxy \"socks5h://{proxy}\"")} --twitch-disable-hosting --twitch-disable-ads twitch.tv/{channel} best -o \"{outputPath}\"";
                                     WriteLog($"{streamlinkCmd}");
                                     ProcessStartInfo? psi = null;
                                     // ProcessStartInfo 설정
