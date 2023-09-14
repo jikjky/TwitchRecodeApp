@@ -232,7 +232,7 @@ namespace TwitchRecodeApp.Class
                         }
                         WriteLog($"{user.LoginId} Process end");
                     }
-                    else
+                    else if (!user.IsRecording && !user.IsNeedProcess)
                     {
                         if (user.IsNeedDelete)
                         {
