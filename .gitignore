@@ -369,4 +369,5 @@ LazyMoon/valorantrank.json
 LazyMoon/appsettings.Development.json
 LazyMoon/appsettings.json
 LazyMoon/wwwroot/google.json
-/TwitchRecodeApp/appsettings.json
+TwitchRecordApp/appsettings.json
+/TwitchRecordApp/appsettings.json
