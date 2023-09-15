@@ -10,9 +10,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static TwitchRecodeApp.Class.TwitchApi;
+using static TwitchRecordApp.Class.TwitchApi;
 
-namespace TwitchRecodeApp.Class
+namespace TwitchRecordApp.Class
 {
     public class YoutubeApi
     {

@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TwitchLib.Api;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using static TwitchRecodeApp.Class.TwitchApi;
+using static TwitchRecordApp.Class.TwitchApi;
 
-namespace TwitchRecodeApp.Class
+namespace TwitchRecordApp.Class
 {
     public class TwitchApi
     {
