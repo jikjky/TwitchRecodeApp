@@ -39,6 +39,7 @@ namespace TwitchRecordApp.Class
 
         public class UserInfo
         {
+            public int Index {get; set;} = 0;
             public string LoginId { get; set; } = "";
             public string FilePath { get; set; } = "";
             public DateTime StreamTime { get; set; }
@@ -69,6 +70,7 @@ namespace TwitchRecordApp.Class
                 var recodingId = configuration.GetSection("AppSettings")["RecodingId"] ?? "";
                 var path = configuration.GetSection("AppSettings")["Path"] ?? "";
                 var proxy = configuration.GetSection("AppSettings")["Proxy"] ?? "";
+                //138.3.208.250:5089
                 var idList = recodingId.Split(',').ToList();
 
                 idList.RemoveAll(x => string.IsNullOrWhiteSpace(x));
@@ -114,18 +116,19 @@ namespace TwitchRecordApp.Class
                     {
                         if (user.IsStream == false)
                         {
-
                             var stream = streams.Streams.ToList().Find(x => x.UserLogin == user.LoginId);
                             if (stream != null)
                             {
                                 user.StreamTime = stream.StartedAt;
                                 user.IsStream = true;
+                                user.IsRecording = true;
 
                                 new Thread(() =>
                                 {
+                                    user.Index++;
                                     // Twitch 채널과 저장 경로 설정
                                     string channel = user.LoginId; // 실제 Twitch 채널 이름으로 대체
-                                    string outputPath = $"{path}{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}.ts"; // 저장 경로 및 파일 이름으로 대체
+                                    string outputPath = $"{path}{channel}_{user.StreamTime.ToString("yyyyMMdd_hhmmss")}_{user.Index}.ts"; // 저장 경로 및 파일 이름으로 대체
                                     user.FilePath = outputPath;
                                     // streamlink 명령어 구성
                                     string streamlinkCmd = $"streamlink {(string.IsNullOrEmpty(proxy) ? "" : $"--http-proxy \"socks5h://{proxy}\"")} --twitch-disable-hosting --twitch-disable-ads twitch.tv/{channel} best -o \'{outputPath}\'";
@@ -163,8 +166,6 @@ namespace TwitchRecordApp.Class
                                         process.StandardInput.Flush();
                                         process.StandardInput.Close();
 
-                                        user.IsRecording = true;
-
                                         while (true)
                                         {
                                             if (process.HasExited)
@@ -187,6 +188,10 @@ namespace TwitchRecordApp.Class
                                 { IsBackground = true }.Start();
                             }
 
+                        }
+                        else if (user.IsStream == true && user.IsRecording == false)
+                        {
+                            user.IsStream = false;
                         }
                     }
                     else
@@ -222,7 +227,7 @@ namespace TwitchRecordApp.Class
                         //    }
                         //    WriteLog($"{user.LoginId} Process end");
                         //}
-
+                        user.Index = 0;
                         user.IsUploadStart = false;
                         user.IsUploadComplete = false;
                         user.IsNeedProcess = false;
